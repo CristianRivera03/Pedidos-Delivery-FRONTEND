@@ -63,42 +63,7 @@ export const Login: Component = () => {
           </p>
         </div>
 
-        {/* Feature Cards Grid */}
-        <div style={{ display: 'grid', 'grid-template-columns': 'repeat(2, 1fr)', gap: '16px', 'z-index': '2' }}>
-          <div
-            style={{
-              padding: '20px',
-              'background-color': 'var(--app-dark-200)',
-              'border-radius': 'var(--radius-md)',
-              border: '1px solid var(--border-color)',
-            }}
-          >
-            <Truck size={24} color="var(--app-green)" />
-            <h4 style={{ color: 'var(--app-white)', 'margin-top': '12px', 'font-weight': '700' }}>
-              Rastreo Realtime
-            </h4>
-            <p style={{ color: 'var(--text-muted)', 'font-size': '13px', 'margin-top': '4px' }}>
-              Actualización instantánea de estados y repartos.
-            </p>
-          </div>
-
-          <div
-            style={{
-              padding: '20px',
-              'background-color': 'var(--app-dark-200)',
-              'border-radius': 'var(--radius-md)',
-              border: '1px solid var(--border-color)',
-            }}
-          >
-            <ShieldCheck size={24} color="#276EF1" />
-            <h4 style={{ color: 'var(--app-white)', 'margin-top': '12px', 'font-weight': '700' }}>
-              Seguridad JWT
-            </h4>
-            <p style={{ color: 'var(--text-muted)', 'font-size': '13px', 'margin-top': '4px' }}>
-              Autenticación segura basada en tokens y roles.
-            </p>
-          </div>
-        </div>
+       
 
         <div style={{ color: 'var(--text-muted)', 'font-size': '12px', 'z-index': '2' }}>
           App Delivery &copy; {new Date().getFullYear()}
