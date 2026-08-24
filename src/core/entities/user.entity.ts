@@ -4,6 +4,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  phone?: string;
   role: UserRole;
   isActive: boolean;
   createdAt?: string;
@@ -13,6 +14,7 @@ export interface User {
 export interface CreateUserDTO {
   email: string;
   name: string;
-  password?: string;
+  phone: string;
+  password: string;
   role?: UserRole;
 }
