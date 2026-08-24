@@ -2,7 +2,7 @@ import { Component, createSignal, Show } from 'solid-js';
 import { UserRole, CreateUserDTO } from '@core/entities/user.entity';
 import { Input } from '@components/ui/Input';
 import { Button } from '@components/ui/Button';
-import { X, UserPlus, Mail, Lock, User as UserIcon, Shield } from 'lucide-solid';
+import { X, UserPlus, Mail, Phone as PhoneIcon, Lock, User as UserIcon, Shield } from 'lucide-solid';
 
 export interface CreateUserModalProps {
   isOpen: boolean;
@@ -13,6 +13,7 @@ export interface CreateUserModalProps {
 export const CreateUserModal: Component<CreateUserModalProps> = (props) => {
   const [name, setName] = createSignal('');
   const [email, setEmail] = createSignal('');
+  const [phone, setPhone] = createSignal('');
   const [password, setPassword] = createSignal('');
   const [role, setRole] = createSignal<UserRole>('CUSTOMER');
   const [isLoading, setIsLoading] = createSignal(false);
@@ -22,8 +23,13 @@ export const CreateUserModal: Component<CreateUserModalProps> = (props) => {
     e.preventDefault();
     setError('');
 
-    if (!name().trim() || !email().trim() || !password()) {
+    if (!name().trim() || !email().trim() || !phone().trim() || !password()) {
       setError('Por favor completa todos los campos requeridos.');
+      return;
+    }
+
+    if (!/^\+?[0-9]{7,15}$/.test(phone().trim())) {
+      setError('Ingresa un teléfono válido (7 a 15 dígitos).');
       return;
     }
 
@@ -32,11 +38,13 @@ export const CreateUserModal: Component<CreateUserModalProps> = (props) => {
       await props.onSubmit({
         name: name().trim(),
         email: email().trim(),
+        phone: phone().trim(),
         password: password(),
         role: role(),
       });
       setName('');
       setEmail('');
+      setPhone('');
       setPassword('');
       setRole('CUSTOMER');
       props.onClose();
@@ -148,6 +156,16 @@ export const CreateUserModal: Component<CreateUserModalProps> = (props) => {
               value={email()}
               onInput={(e) => setEmail(e.currentTarget.value)}
               icon={<Mail size={18} />}
+              required
+            />
+
+            <Input
+              label="Teléfono"
+              type="tel"
+              placeholder="Ej: 70123456"
+              value={phone()}
+              onInput={(e) => setPhone(e.currentTarget.value)}
+              icon={<PhoneIcon size={18} />}
               required
             />
 

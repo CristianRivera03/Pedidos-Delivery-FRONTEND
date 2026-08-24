@@ -69,6 +69,20 @@ export const authStore = {
     }
   },
 
+  fetchProfile: async (): Promise<User | null> => {
+    const currentToken = token();
+    if (!currentToken) return null;
+    try {
+      const currentUser = await authService.getCurrentUser(currentToken);
+      setUser(currentUser);
+      localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+      return currentUser;
+    } catch {
+      authStore.logout();
+      return null;
+    }
+  },
+
   logout: () => {
     setUser(null);
     setToken(null);
@@ -79,3 +93,8 @@ export const authStore = {
 
   clearError: () => setError(null),
 };
+
+// Sincronizar / validar perfil del usuario al cargar la app si existe token
+if (initialToken) {
+  authStore.fetchProfile();
+}

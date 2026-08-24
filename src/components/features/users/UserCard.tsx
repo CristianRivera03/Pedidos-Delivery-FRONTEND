@@ -2,7 +2,7 @@ import { Component, Show } from 'solid-js';
 import { User } from '@core/entities/user.entity';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
-import { Mail, Calendar, Trash2, Shield, CheckCircle, XCircle } from 'lucide-solid';
+import { Mail, Phone, Calendar, Trash2, Shield, CheckCircle, XCircle } from 'lucide-solid';
 
 export interface UserCardProps {
   user: User;
@@ -58,9 +58,17 @@ export const UserCard: Component<UserCardProps> = (props) => {
             <h3 style={{ 'font-size': '16px', 'font-weight': '700', color: 'var(--app-white)', margin: '0' }}>
               {props.user.name}
             </h3>
-            <div style={{ display: 'flex', 'align-items': 'center', gap: '6px', 'margin-top': '2px', color: 'var(--text-muted)', 'font-size': '13px' }}>
-              <Mail size={14} />
-              <span>{props.user.email}</span>
+            <div style={{ display: 'flex', 'flex-direction': 'column', gap: '2px', 'margin-top': '4px', color: 'var(--text-muted)', 'font-size': '13px' }}>
+              <div style={{ display: 'flex', 'align-items': 'center', gap: '6px' }}>
+                <Mail size={14} />
+                <span>{props.user.email}</span>
+              </div>
+              <Show when={props.user.phone}>
+                <div style={{ display: 'flex', 'align-items': 'center', gap: '6px' }}>
+                  <Phone size={14} />
+                  <span>{props.user.phone}</span>
+                </div>
+              </Show>
             </div>
           </div>
         </div>
