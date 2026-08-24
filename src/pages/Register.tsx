@@ -1,10 +1,10 @@
 import { Component } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
+import { RegisterForm } from '@components/features/auth/RegisterForm';
+import { Sparkles } from 'lucide-solid';
 import { Button } from '@components/ui/Button';
-import { LoginForm } from '@components/features/auth/LoginForm';
-import { ShieldCheck, Truck, Clock, Sparkles } from 'lucide-solid';
 
-export const Login: Component = () => {
+export const Register: Component = () => {
   const navigate = useNavigate();
 
   return (
@@ -15,7 +15,6 @@ export const Login: Component = () => {
         'background-color': 'var(--app-black)',
       }}
     >
-      {/* Left Column - Hero Branding */}
       <div
         style={{
           flex: '1',
@@ -59,22 +58,19 @@ export const Login: Component = () => {
               'letter-spacing': '-1px',
             }}
           >
-            Entregas rápidas con <br />
-            <span style={{ color: 'var(--app-green)' }}>Máxima Eficiencia</span>
+            Crea tu cuenta y <br />
+            <span style={{ color: 'var(--app-green)' }}>empieza a gestionar</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', 'font-size': '16px', 'max-width': '460px' }}>
-            Plataforma de logística y gestión de pedidos delivery optimizada en tiempo real.
+            Registra tus datos para acceder a la plataforma de logística y gestión de pedidos.
           </p>
         </div>
-
-       
 
         <div style={{ color: 'var(--text-muted)', 'font-size': '12px', 'z-index': '2' }}>
           App Delivery &copy; {new Date().getFullYear()}
         </div>
       </div>
 
-      {/* Right Column - Login Box */}
       <div
         style={{
           width: '520px',
@@ -83,24 +79,25 @@ export const Login: Component = () => {
           'justify-content': 'center',
           'align-items': 'center',
           padding: '40px',
+          'overflow-y': 'auto',
         }}
       >
         <div style={{ width: '100%', 'max-width': '380px' }}>
-          <div style={{ 'margin-bottom': '32px' }}>
+          <div style={{ 'margin-bottom': '24px' }}>
             <h2 style={{ 'font-size': '28px', 'font-weight': '800', color: 'var(--app-white)', 'margin-bottom': '8px' }}>
-              Iniciar Sesión
+              Crear Cuenta
             </h2>
             <p style={{ color: 'var(--text-secondary)', 'font-size': '14px' }}>
-              Ingresa tus credenciales para acceder al panel.
+              Completa tus datos para registrarte como cliente.
             </p>
           </div>
 
-          <LoginForm />
+          <RegisterForm />
 
           <div style={{ 'margin-top': '20px', 'text-align': 'center' }}>
-            <span style={{ color: 'var(--text-secondary)', 'font-size': '13px' }}>¿No tienes una cuenta? </span>
-            <Button variant="ghost" size="sm" type="button" onClick={() => navigate('/register')}>
-              Crear Cuenta
+            <span style={{ color: 'var(--text-secondary)', 'font-size': '13px' }}>¿Ya tienes una cuenta? </span>
+            <Button variant="ghost" size="sm" type="button" onClick={() => navigate('/login')}>
+              Iniciar Sesión
             </Button>
           </div>
         </div>

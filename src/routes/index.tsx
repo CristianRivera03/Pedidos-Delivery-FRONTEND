@@ -1,6 +1,7 @@
 import { Component, JSX, Show } from 'solid-js';
 import { Router, Route, Navigate } from '@solidjs/router';
 import { Login } from '@pages/Login';
+import { Register } from '@pages/Register';
 import { Dashboard } from '@pages/Dashboard';
 import { UsersPage } from '@pages/Users';
 import { NotFound } from '@pages/NotFound';
@@ -20,6 +21,7 @@ export const AppRoutes: Component = () => {
     <Router>
       <Route path="/" component={() => <Navigate href="/dashboard" />} />
       <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route
         path="/dashboard"
         component={() => (
