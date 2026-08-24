@@ -82,8 +82,8 @@ export const Navbar: Component = () => {
               <LayoutDashboard size={16} />
               <span>Dashboard</span>
             </A>
-
-            <A
+            <Show when={authStore.userRole() === 'ADMIN'}>
+              <A
               href="/users"
               style={{
                 display: 'flex',
@@ -102,6 +102,7 @@ export const Navbar: Component = () => {
               <Users size={16} />
               <span>Usuarios</span>
             </A>
+            </Show>
           </nav>
         </Show>
       </div>

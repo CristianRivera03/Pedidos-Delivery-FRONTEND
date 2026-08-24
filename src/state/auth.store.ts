@@ -1,6 +1,6 @@
 import { createSignal, createMemo } from 'solid-js';
 import { User } from '@core/entities/user.entity';
-import { LoginCredentials } from '@core/entities/auth.entity';
+import { LoginCredentials, RegisterCredentials } from '@core/entities/auth.entity';
 import { authService } from '@infrastructure/services';
 
 const TOKEN_KEY = 'delivery_token';
@@ -44,6 +44,25 @@ export const authStore = {
       return true;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al iniciar sesión';
+      setError(msg);
+      setIsLoading(false);
+      return false;
+    }
+  },
+  
+  register: async (credentials: RegisterCredentials): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await authService.register(credentials);
+      setUser(response.user);
+      setToken(response.token);
+      localStorage.setItem(TOKEN_KEY, response.token);
+      localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+      setIsLoading(false);
+      return true;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al registrar usuario';
       setError(msg);
       setIsLoading(false);
       return false;
