@@ -1,9 +1,9 @@
-import { Component, createSignal, onMount, For } from 'solid-js';
+import { Component, Show, createSignal, onMount, For } from 'solid-js';
 import { MainLayout } from '@components/layout/MainLayout';
 import { authStore } from '@state/auth.store';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
-import { ShoppingBag, Users, TrendingUp, Shield, ArrowUpRight, Clock } from 'lucide-solid';
+import { ShoppingBag, Users, TrendingUp, Shield, ArrowUpRight, Clock, Package, UserCircle, } from 'lucide-solid';
 import { A } from '@solidjs/router';
 
 export const Dashboard: Component = () => {
@@ -30,16 +30,18 @@ export const Dashboard: Component = () => {
               Bienvenido al centro de mando de App Delivery con reactividad en tiempo real.
             </p>
           </div>
-
-          <A href="/users" style={{ 'text-decoration': 'none' }}>
-            <Button variant="primary" icon={<ArrowUpRight size={16} />}>
-              Gestionar Usuarios
-            </Button>
-          </A>
+          <Show when={authStore.userRole() === 'ADMIN'}>
+            <A href="/users" style={{ 'text-decoration': 'none' }}>
+              <Button variant="primary" icon={<ArrowUpRight size={16} />}>
+                Gestionar Usuarios
+              </Button>
+            </A>
+          </Show>
         </div>
 
         {/* Metrics Grid */}
-        <div style={{ display: 'grid', 'grid-template-columns': 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+        <Show when={authStore.userRole() === 'ADMIN'}>
+          <div style={{ display: 'grid', 'grid-template-columns': 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
           <For each={metrics}>
             {(metric) => {
               const IconComp = metric.icon;
@@ -87,6 +89,227 @@ export const Dashboard: Component = () => {
             }}
           </For>
         </div>
+        </Show>
+        {/* DASHBOARD CUSTOMER */}
+
+        <Show when={authStore.userRole() === 'CUSTOMER'}>
+          <div style={{display: 'grid', 'grid-template-columns': 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px',}}>
+            <div style={{
+                'background-color': 'var(--app-dark-100)',
+                border: '1px solid var(--border-color)',
+                'border-radius': 'var(--radius-lg)',
+                padding: '24px',
+                display: 'flex',
+                'flex-direction': 'column',
+                gap: '14px',
+              }}
+            >
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  'border-radius': 'var(--radius-pill)',
+                  'background-color': 'var(--app-green-light)',
+                  color: 'var(--app-green)',
+                  display: 'flex',
+                  'align-items': 'center',
+                  'justify-content': 'center',
+                }}
+              >
+                <ShoppingBag size={20} />
+              </div>
+
+              <h2
+                style={{ color: 'var(--app-white)', 'font-size': '18px', margin: '0', }}> Mis pedidos
+              </h2>
+
+              <p style={{ color: 'var(--text-secondary)', 'font-size': '14px', margin: '0', }}>
+                Consulta y da seguimiento a tus pedidos realizados.
+              </p>
+            </div>
+
+            <div
+              style={{
+                'background-color': 'var(--app-dark-100)',
+                border: '1px solid var(--border-color)',
+                'border-radius': 'var(--radius-lg)',
+                padding: '24px',
+                display: 'flex',
+                'flex-direction': 'column',
+                gap: '14px',
+              }}
+            >
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  'border-radius': 'var(--radius-pill)',
+                  'background-color': 'var(--app-green-light)',
+                  color: 'var(--app-green)',
+                  display: 'flex',
+                  'align-items': 'center',
+                  'justify-content': 'center',
+                }}
+              >
+                <Package size={20} />
+              </div>
+
+              <h2 style={{ color: 'var(--app-white)', 'font-size': '18px', margin: '0',}}
+              >
+                Estado de pedidos
+              </h2>
+
+              <p
+                style={{color: 'var(--text-secondary)', 'font-size': '14px', margin: '0',}}>
+                Revisa el estado y progreso de tus pedidos.
+              </p>
+            </div>
+
+            <div
+              style={{
+                'background-color': 'var(--app-dark-100)',
+                border: '1px solid var(--border-color)',
+                'border-radius': 'var(--radius-lg)',
+                padding: '24px',
+                display: 'flex',
+                'flex-direction': 'column',
+                gap: '14px',
+              }}
+            >
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  'border-radius': 'var(--radius-pill)',
+                  'background-color': 'var(--app-green-light)',
+                  color: 'var(--app-green)',
+                  display: 'flex',
+                  'align-items': 'center',
+                  'justify-content': 'center',
+                }}
+              >
+                <UserCircle size={20} />
+              </div>
+
+              <h2 style={{ color: 'var(--app-white)', 'font-size': '18px', margin: '0', }}>
+                Mi perfil
+              </h2>
+
+              <p style={{color: 'var(--text-secondary)','font-size': '14px',margin: '0',}}>
+                Consulta la información de tu cuenta.
+              </p>
+            </div>
+          </div>
+        </Show>
+        {/* DASHBOARD DELIVERY */}
+        <Show when={authStore.userRole() === 'DELIVERY'}>
+          <div style={{display: 'grid','grid-template-columns':'repeat(auto-fit, minmax(240px, 1fr))',gap: '20px',}}>
+            <div
+              style={{
+                'background-color': 'var(--app-dark-100)',
+                border: '1px solid var(--border-color)',
+                'border-radius': 'var(--radius-lg)',
+                padding: '24px',
+                display: 'flex',
+                'flex-direction': 'column',
+                gap: '14px',
+              }}
+            >
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  'border-radius': 'var(--radius-pill)',
+                  'background-color': 'var(--app-green-light)',
+                  color: 'var(--app-green)',
+                  display: 'flex',
+                  'align-items': 'center',
+                  'justify-content': 'center',
+                }}
+              >
+                <ShoppingBag size={20} />
+              </div>
+
+              <h2 style={{ color: 'var(--app-white)','font-size': '18px', margin: '0',}}>
+                Mis entregas
+              </h2>
+
+              <p style={{color: 'var(--text-secondary)','font-size': '14px',margin: '0',}}>
+                Consulta las entregas asignadas a tu cuenta.
+              </p>
+            </div>
+
+            <div
+              style={{
+                'background-color': 'var(--app-dark-100)',
+                border: '1px solid var(--border-color)',
+                'border-radius': 'var(--radius-lg)',
+                padding: '24px',
+                display: 'flex',
+                'flex-direction': 'column',
+                gap: '14px',
+              }}
+            >
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  'border-radius': 'var(--radius-pill)',
+                  'background-color': 'var(--app-green-light)',
+                  color: 'var(--app-green)',
+                  display: 'flex',
+                  'align-items': 'center',
+                  'justify-content': 'center',
+                }}
+              >
+                <Package size={20} />
+              </div>
+
+              <h2 style={{color: 'var(--app-white)','font-size': '18px',margin: '0', }}>
+                Pedidos pendientes
+              </h2>
+
+              <p style={{color: 'var(--text-secondary)','font-size': '14px',margin: '0',}} >
+                Revisa los pedidos pendientes de entrega.
+              </p>
+            </div>
+
+            <div
+              style={{
+                'background-color': 'var(--app-dark-100)',
+                border: '1px solid var(--border-color)',
+                'border-radius': 'var(--radius-lg)',
+                padding: '24px',
+                display: 'flex',
+                'flex-direction': 'column',
+                gap: '14px',
+              }}
+            >
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  'border-radius': 'var(--radius-pill)',
+                  'background-color': 'var(--app-green-light)',
+                  color: 'var(--app-green)',
+                  display: 'flex',
+                  'align-items': 'center',
+                  'justify-content': 'center',
+                }}
+              >
+                <TrendingUp size={20} />
+              </div>
+
+              <h2 style={{color: 'var(--app-white)','font-size': '18px',margin: '0',}}>
+                Estado de entregas
+              </h2>
+
+              <p style={{color: 'var(--text-secondary)','font-size': '14px',margin: '0',}}>
+                Consulta el estado de tus entregas actuales.
+              </p>
+            </div>
+          </div>
+        </Show>
       </div>
     </MainLayout>
   );
