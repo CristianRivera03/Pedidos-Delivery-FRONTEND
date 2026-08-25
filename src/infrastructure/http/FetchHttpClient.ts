@@ -39,8 +39,13 @@ export class FetchHttpClient implements IHttpClient {
         let errorMessage = `HTTP Error ${response.status}: ${response.statusText}`;
         try {
           const errorData = await response.json();
-          if (errorData.message) errorMessage = errorData.message;
-          else if (errorData.error) errorMessage = errorData.error;
+          if (typeof errorData.message === 'string' && errorData.message.trim()) {
+            errorMessage = errorData.message;
+          } else if (typeof errorData.error === 'string' && errorData.error.trim()) {
+            errorMessage = errorData.error;
+          } else if (errorData.error && typeof errorData.error.message === 'string') {
+            errorMessage = errorData.error.message;
+          }
         } catch {
           // Response body was not JSON
         }
