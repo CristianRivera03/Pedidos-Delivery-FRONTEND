@@ -21,6 +21,23 @@ const [error, setError] = createSignal<string | null>(null);
 const isAuthenticated = createMemo(() => !!token() && !!user());
 const userRole = createMemo(() => user()?.role || null);
 
+const formatAuthError = (err: unknown, fallback: string): string => {
+  const rawMsg = err instanceof Error ? err.message : fallback;
+  if (rawMsg.includes('already exists')) {
+    const match = rawMsg.match(/'([^']+)'/);
+    return match
+      ? `El correo '${match[1]}' ya está registrado.`
+      : 'El correo electrónico ya se encuentra registrado.';
+  }
+  if (rawMsg.toLowerCase().includes('invalid credentials') || rawMsg.toLowerCase().includes('unauthorized')) {
+    return 'Correo electrónico o contraseña incorrectos.';
+  }
+  if (rawMsg.includes('Invalid phone format')) {
+    return 'El formato del número de teléfono es inválido.';
+  }
+  return rawMsg;
+};
+
 export const authStore = {
   // Getters reactivos
   user,
@@ -43,8 +60,7 @@ export const authStore = {
       setIsLoading(false);
       return true;
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al iniciar sesión';
-      setError(msg);
+      setError(formatAuthError(err, 'Error al iniciar sesión'));
       setIsLoading(false);
       return false;
     }
@@ -62,8 +78,7 @@ export const authStore = {
       setIsLoading(false);
       return true;
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al registrar usuario';
-      setError(msg);
+      setError(formatAuthError(err, 'Error al registrar usuario'));
       setIsLoading(false);
       return false;
     }
