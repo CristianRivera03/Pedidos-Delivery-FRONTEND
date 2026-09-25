@@ -3,7 +3,7 @@ import { A, useNavigate } from '@solidjs/router';
 import { authStore } from '@state/auth.store';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
-import { LogOut, User as UserIcon, ShoppingBag, Users, LayoutDashboard } from 'lucide-solid';
+import { LogOut, User as UserIcon, ShoppingBag, Users, LayoutDashboard, Tag, Package } from 'lucide-solid';
 
 export const Navbar: Component = () => {
   const navigate = useNavigate();
@@ -11,6 +11,11 @@ export const Navbar: Component = () => {
   const handleLogout = () => {
     authStore.logout();
     navigate('/login');
+  };
+
+  const isManagementRole = () => {
+    const role = authStore.userRole();
+    return role === 'ADMIN' || role === 'RESTAURANT';
   };
 
   return (
@@ -29,7 +34,7 @@ export const Navbar: Component = () => {
       }}
     >
       {/* Brand Logo */}
-      <div style={{ display: 'flex', 'align-items': 'center', gap: '32px' }}>
+      <div style={{ display: 'flex', 'align-items': 'center', gap: '24px' }}>
         <A
           href="/dashboard"
           style={{
@@ -62,14 +67,14 @@ export const Navbar: Component = () => {
 
         {/* Navigation Links */}
         <Show when={authStore.isAuthenticated()}>
-          <nav style={{ display: 'flex', gap: '8px' }}>
+          <nav style={{ display: 'flex', gap: '4px' }}>
             <A
               href="/dashboard"
               style={{
                 display: 'flex',
                 'align-items': 'center',
-                gap: '8px',
-                padding: '8px 16px',
+                gap: '6px',
+                padding: '8px 14px',
                 color: 'var(--text-secondary)',
                 'text-decoration': 'none',
                 'font-size': '14px',
@@ -82,14 +87,14 @@ export const Navbar: Component = () => {
               <LayoutDashboard size={16} />
               <span>Dashboard</span>
             </A>
-            <Show when={authStore.userRole() === 'ADMIN'}>
-              <A
-              href="/users"
+
+            <A
+              href="/catalog"
               style={{
                 display: 'flex',
                 'align-items': 'center',
-                gap: '8px',
-                padding: '8px 16px',
+                gap: '6px',
+                padding: '8px 14px',
                 color: 'var(--text-secondary)',
                 'text-decoration': 'none',
                 'font-size': '14px',
@@ -99,9 +104,72 @@ export const Navbar: Component = () => {
               }}
               activeClass="navbar-link-active"
             >
-              <Users size={16} />
-              <span>Usuarios</span>
+              <ShoppingBag size={16} />
+              <span>Catálogo</span>
             </A>
+
+            <Show when={isManagementRole()}>
+              <A
+                href="/categories"
+                style={{
+                  display: 'flex',
+                  'align-items': 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  color: 'var(--text-secondary)',
+                  'text-decoration': 'none',
+                  'font-size': '14px',
+                  'font-weight': '500',
+                  'border-radius': 'var(--radius-pill)',
+                  transition: 'var(--transition-fast)',
+                }}
+                activeClass="navbar-link-active"
+              >
+                <Tag size={16} />
+                <span>Categorías</span>
+              </A>
+
+              <A
+                href="/products-admin"
+                style={{
+                  display: 'flex',
+                  'align-items': 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  color: 'var(--text-secondary)',
+                  'text-decoration': 'none',
+                  'font-size': '14px',
+                  'font-weight': '500',
+                  'border-radius': 'var(--radius-pill)',
+                  transition: 'var(--transition-fast)',
+                }}
+                activeClass="navbar-link-active"
+              >
+                <Package size={16} />
+                <span>Productos (Admin)</span>
+              </A>
+            </Show>
+
+            <Show when={authStore.userRole() === 'ADMIN'}>
+              <A
+                href="/users"
+                style={{
+                  display: 'flex',
+                  'align-items': 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  color: 'var(--text-secondary)',
+                  'text-decoration': 'none',
+                  'font-size': '14px',
+                  'font-weight': '500',
+                  'border-radius': 'var(--radius-pill)',
+                  transition: 'var(--transition-fast)',
+                }}
+                activeClass="navbar-link-active"
+              >
+                <Users size={16} />
+                <span>Usuarios</span>
+              </A>
             </Show>
           </nav>
         </Show>

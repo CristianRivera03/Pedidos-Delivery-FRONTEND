@@ -12,7 +12,9 @@ export class FetchHttpClient implements IHttpClient {
     const url = new URL(`${this.baseUrl}${cleanPath}`);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        url.searchParams.append(key, value);
+        if (value !== undefined && value !== null && value !== '') {
+          url.searchParams.append(key, value);
+        }
       });
     }
     return url.toString();
@@ -76,6 +78,10 @@ export class FetchHttpClient implements IHttpClient {
 
   async put<T>(url: string, body: unknown, options?: HttpRequestOptions): Promise<T> {
     return this.request<T>('PUT', url, body, options);
+  }
+
+  async patch<T>(url: string, body: unknown, options?: HttpRequestOptions): Promise<T> {
+    return this.request<T>('PATCH', url, body, options);
   }
 
   async delete<T>(url: string, options?: HttpRequestOptions): Promise<T> {
