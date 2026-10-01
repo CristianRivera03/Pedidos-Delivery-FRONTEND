@@ -3,12 +3,14 @@ import { A, useNavigate } from '@solidjs/router';
 import { authStore } from '@state/auth.store';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
-import { LogOut, User as UserIcon, ShoppingBag, Users, LayoutDashboard, Tag, Package } from 'lucide-solid';
+import { cartStore } from '@state/cart.store';
+import { LogOut, User as UserIcon, ShoppingBag, ShoppingCart, Users, LayoutDashboard, Tag, Package } from 'lucide-solid';
 
 export const Navbar: Component = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    cartStore.clear();
     authStore.logout();
     navigate('/login');
   };
@@ -106,6 +108,40 @@ export const Navbar: Component = () => {
             >
               <ShoppingBag size={16} />
               <span>Catálogo</span>
+            </A>
+
+            <A
+              href="/cart"
+              style={{
+                display: 'flex',
+                'align-items': 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                color: 'var(--text-secondary)',
+                'text-decoration': 'none',
+                'font-size': '14px',
+                'font-weight': '500',
+                'border-radius': 'var(--radius-pill)',
+                transition: 'var(--transition-fast)',
+              }}
+              activeClass="navbar-link-active"
+            >
+              <ShoppingCart size={16} />
+              <span>Carrito</span>
+              <Show when={cartStore.totals().itemsCount > 0}>
+                <span
+                  style={{
+                    'background-color': 'var(--app-green)',
+                    color: '#000',
+                    'font-size': '11px',
+                    'font-weight': '800',
+                    padding: '1px 7px',
+                    'border-radius': 'var(--radius-pill)',
+                  }}
+                >
+                  {cartStore.totals().itemsCount}
+                </span>
+              </Show>
             </A>
 
             <Show when={isManagementRole()}>

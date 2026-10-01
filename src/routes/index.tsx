@@ -9,7 +9,7 @@ import { CategoriesPage } from '@pages/Categories';
 import { ProductsAdminPage } from '@pages/ProductsAdmin';
 import { NotFound } from '@pages/NotFound';
 import { authStore } from '@state/auth.store';
-
+import { CartPage } from '@pages/Cart';
 // Componente Guardia de Rutas Protegidas
 const ProtectedRoute: Component<{ children: JSX.Element }> = (props) => {
   return (
@@ -38,6 +38,14 @@ export const AppRoutes: Component = () => {
         component={() => (
           <ProtectedRoute>
             <Catalog />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/cart"
+        component={() => (
+          <ProtectedRoute>
+            <CartPage />
           </ProtectedRoute>
         )}
       />

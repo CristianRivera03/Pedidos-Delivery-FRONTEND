@@ -3,8 +3,10 @@ import { MainLayout } from '@components/layout/MainLayout';
 import { Product, PaginationMeta } from '@core/entities/product.entity';
 import { Category } from '@core/entities/category.entity';
 import { productService, categoryService } from '@infrastructure/services';
+import { A } from '@solidjs/router';
 import { Button } from '@components/ui/Button';
-import { Badge } from '@components/ui/Badge';
+import { cartStore } from '@state/cart.store';
+import { formatMoney, priceWithIva } from '@core/entities/cart.entity';
 import { Search, ShoppingBag, ChevronLeft, ChevronRight, RefreshCw, Tag, AlertCircle, CheckCircle2, ShoppingCart } from 'lucide-solid';
 
 export const Catalog: Component = () => {
@@ -17,7 +19,6 @@ export const Catalog: Component = () => {
   const [pagination, setPagination] = createSignal<PaginationMeta | null>(null);
   const [isLoading, setIsLoading] = createSignal<boolean>(false);
   const [error, setError] = createSignal<string | null>(null);
-  const [cartCount, setCartCount] = createSignal<number>(0);
   const [notification, setNotification] = createSignal<string | null>(null);
 
   const fetchCategories = async () => {
@@ -81,10 +82,15 @@ export const Catalog: Component = () => {
     }
   };
 
+    // RF-04: agregar al carrito reactivo (respeta el stock disponible)
   const handleAddToCart = (product: Product) => {
     if (product.stock <= 0) return;
-    setCartCount(cartCount() + 1);
-    setNotification(`¡"${product.name}" añadido al carrito!`);
+    const added = cartStore.addItem(product, 1);
+    setNotification(
+      added
+        ? `¡"${product.name}" añadido al carrito!`
+        : `No hay más stock disponible de "${product.name}" (máx. ${product.stock}).`,
+    );
     setTimeout(() => setNotification(null), 3000);
   };
 
@@ -122,7 +128,8 @@ export const Catalog: Component = () => {
           </div>
 
           <div style={{ display: 'flex', 'align-items': 'center', gap: '12px' }}>
-            <div
+            <A
+              href="/cart"
               style={{
                 display: 'flex',
                 'align-items': 'center',
@@ -134,15 +141,28 @@ export const Catalog: Component = () => {
                 color: 'var(--app-white)',
                 'font-size': '14px',
                 'font-weight': '600',
+                'text-decoration': 'none',
               }}
             >
               <ShoppingCart size={18} color="var(--app-green)" />
+
               <span>Carrito: </span>
+
               <span style={{ color: 'var(--app-green)', 'font-size': '16px', 'font-weight': '800' }}>
-                {cartCount()}
+                {cartStore.totals().itemsCount}
               </span>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => fetchProducts()} icon={<RefreshCw size={14} />}>
+
+              <span style={{ color: 'var(--text-secondary)' }}>
+                · {formatMoney(cartStore.totals().total)}
+              </span>
+            </A>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchProducts()}
+              icon={<RefreshCw size={14} />}
+            >
               Actualizar
             </Button>
           </div>
@@ -410,9 +430,12 @@ export const Catalog: Component = () => {
                     {/* Price and Action */}
                     <div style={{ display: 'flex', 'align-items': 'center', 'justify-content': 'space-between', 'border-top': '1px solid var(--border-color)', 'padding-top': '14px' }}>
                       <div>
-                        <span style={{ 'font-size': '11px', color: 'var(--text-muted)', display: 'block' }}>Precio</span>
+                        <span style={{ 'font-size': '11px', color: 'var(--text-muted)', display: 'block' }}>Precio con IVA</span>
                         <span style={{ 'font-size': '20px', 'font-weight': '800', color: 'var(--app-white)' }}>
-                          ${Number(prod.price).toFixed(2)}
+                          {formatMoney(priceWithIva(prod.price))}
+                        </span>
+                        <span style={{ 'font-size': '11px', color: 'var(--text-muted)', display: 'block' }}>
+                          Sin IVA: {formatMoney(Number(prod.price))}
                         </span>
                       </div>
 
