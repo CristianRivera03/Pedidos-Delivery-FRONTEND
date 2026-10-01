@@ -1,4 +1,5 @@
 import { IHttpClient, HttpRequestOptions } from '@core/contracts/IHttpClient';
+import { ApiError } from '@core/errors/ApiError';
 
 export class FetchHttpClient implements IHttpClient {
   private baseUrl: string;
@@ -34,11 +35,17 @@ export class FetchHttpClient implements IHttpClient {
       body: body ? JSON.stringify(body) : undefined,
     };
 
+    let response: Response;
     try {
-      const response = await fetch(fullUrl, config);
+      response = await fetch(fullUrl, config);
+    } catch {
+      // Sin conexión, CORS o servidor caído
+      throw new ApiError('No se pudo conectar con el servidor. Revisa tu conexión.', 0, 'NetworkError');
+    }
 
       if (!response.ok) {
         let errorMessage = `HTTP Error ${response.status}: ${response.statusText}`;
+        let errorType = 'HttpError';
         try {
           const errorData = await response.json();
           if (typeof errorData.message === 'string' && errorData.message.trim()) {
@@ -47,11 +54,12 @@ export class FetchHttpClient implements IHttpClient {
             errorMessage = errorData.error;
           } else if (errorData.error && typeof errorData.error.message === 'string') {
             errorMessage = errorData.error.message;
+            if (typeof errorData.error.type === 'string') errorType = errorData.error.type;
           }
         } catch {
           // Response body was not JSON
         }
-        throw new Error(errorMessage);
+        throw new ApiError(errorMessage, response.status, errorType);
       }
 
       // If response has no content (204 No Content)
@@ -60,12 +68,7 @@ export class FetchHttpClient implements IHttpClient {
       }
 
       return (await response.json()) as T;
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        throw err;
-      }
-      throw new Error('Error desconocido en la comunicación con el servidor');
-    }
+    
   }
 
   async get<T>(url: string, options?: HttpRequestOptions): Promise<T> {
