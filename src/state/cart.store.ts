@@ -1,5 +1,5 @@
-import { createMemo, createRoot, createSignal } from 'solid-js';
-import { createStore, produce } from 'solid-js/store';
+import { createEffect, createMemo, createRoot, createSignal, on, untrack } from 'solid-js';
+import { createStore, produce, reconcile } from 'solid-js/store';
 import { Product } from '@core/entities/product.entity';
 import { CartItem, CartTotals, IVA_RATE, round2 } from '@core/entities/cart.entity';
 import { CheckoutDTO, Order, PaymentMethod } from '@core/entities/order.entity';
@@ -7,32 +7,54 @@ import { ApiError } from '@core/errors/ApiError';
 import { orderService, productService } from '@infrastructure/services';
 import { authStore } from '@state/auth.store';
 
-// RF-04: Carrito reactivo en el cliente (persistido en localStorage)
+// RF-04: Carrito reactivo en el cliente (persistido en localStorage POR USUARIO)
 // RF-05: Checkout -> POST /orders
 
-const CART_KEY = 'delivery_cart';
+// Cada usuario tiene su propio carrito guardado: delivery_cart_<userId>
+const cartKey = (userId: string): string => `delivery_cart_${userId}`;
 
-const loadCart = (): CartItem[] => {
+// Único método de pago habilitado: efectivo contra entrega (pasarelas de tarjeta excluidas)
+export const PAYMENT_METHOD: PaymentMethod = 'CASH';
+
+const loadCart = (userId: string | null): CartItem[] => {
+  if (!userId) return [];
   try {
-    const raw = localStorage.getItem(CART_KEY);
+    const raw = localStorage.getItem(cartKey(userId));
     return raw ? (JSON.parse(raw) as CartItem[]) : [];
   } catch {
     return [];
   }
 };
 
-const saveCart = (items: CartItem[]) => {
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
+const saveCart = (userId: string | null, items: CartItem[]) => {
+  if (!userId) return;
+  localStorage.setItem(cartKey(userId), JSON.stringify(items));
 };
 
 // createRoot evita el warning de "computations created outside a root" en los memos globales
 const cartStore = createRoot(() => {
-  const [items, setItems] = createStore<CartItem[]>(loadCart());
+  // Usuario dueño del carrito (null = nadie con sesión iniciada)
+  const userId = createMemo(() => authStore.user()?.id ?? null);
+
+  const [items, setItems] = createStore<CartItem[]>(loadCart(untrack(userId)));
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [checkoutError, setCheckoutError] = createSignal<string | null>(null);
   const [lastOrder, setLastOrder] = createSignal<Order | null>(null);
 
-  const persist = () => saveCart(items.map((i) => ({ ...i })));
+  const persist = () => saveCart(userId(), items.map((i) => ({ ...i })));
+
+  // Al cerrar sesión el carrito se oculta (queda guardado); al iniciar sesión se carga el de ese usuario
+  createEffect(
+    on(
+      userId,
+      (id) => {
+        setItems(reconcile(loadCart(id)));
+        setCheckoutError(null);
+        setLastOrder(null);
+      },
+      { defer: true },
+    ),
+  );
 
   // ---------- Cálculos reactivos (se recalculan solos al cambiar el carrito) ----------
   const lineSubtotal = (item: CartItem): number => round2(item.unitPrice * item.quantity);
@@ -106,7 +128,8 @@ const cartStore = createRoot(() => {
 
   const clear = (): void => {
     setItems([]);
-    localStorage.removeItem(CART_KEY);
+    const id = userId();
+    if (id) localStorage.removeItem(cartKey(id));
   };
 
   /**
@@ -164,7 +187,7 @@ const cartStore = createRoot(() => {
   };
 
   // ---------- RF-05: Checkout ----------
-  const checkout = async (deliveryAddress: string, paymentMethod: PaymentMethod): Promise<Order | null> => {
+    const checkout = async (deliveryAddress: string): Promise<Order | null> => {
     const token = authStore.token();
     if (!token) {
       setCheckoutError('Debes iniciar sesión para confirmar el pedido.');
@@ -176,7 +199,7 @@ const cartStore = createRoot(() => {
     }
 
     const dto: CheckoutDTO = {
-      paymentMethod,
+      paymentMethod: PAYMENT_METHOD,
       deliveryAddress: deliveryAddress.trim(),
       items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
     };

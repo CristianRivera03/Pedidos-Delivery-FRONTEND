@@ -5,7 +5,6 @@ import { Button } from '@components/ui/Button';
 import { Input } from '@components/ui/Input';
 import { cartStore } from '@state/cart.store';
 import { authStore } from '@state/auth.store';
-import { PaymentMethod } from '@core/entities/order.entity';
 import { formatMoney, ivaOf, priceWithIva } from '@core/entities/cart.entity';
 import {
   ShoppingCart,
@@ -13,7 +12,6 @@ import {
   Plus,
   Minus,
   MapPin,
-  CreditCard,
   Banknote,
   AlertCircle,
   CheckCircle2,
@@ -56,7 +54,6 @@ const qtyBtnStyle = {
 
 export const CartPage: Component = () => {
   const [address, setAddress] = createSignal('');
-  const [paymentMethod, setPaymentMethod] = createSignal<PaymentMethod>('CASH');
   const [addressError, setAddressError] = createSignal<string | null>(null);
 
   const isCustomer = () => authStore.userRole() === 'CUSTOMER';
@@ -72,24 +69,9 @@ export const CartPage: Component = () => {
       return;
     }
     setAddressError(null);
-    const order = await cartStore.checkout(value, paymentMethod());
+        const order = await cartStore.checkout(value);
     if (order) setAddress('');
   };
-
-  const paymentOptionStyle = (method: PaymentMethod) => ({
-    flex: '1',
-    display: 'flex',
-    'align-items': 'center',
-    gap: '10px',
-    padding: '12px 14px',
-    'border-radius': 'var(--radius-md)',
-    cursor: 'pointer',
-    border: paymentMethod() === method ? '1px solid var(--app-green)' : '1px solid var(--border-color)',
-    'background-color': paymentMethod() === method ? 'var(--app-green-light)' : 'var(--app-dark-300)',
-    color: paymentMethod() === method ? 'var(--app-green)' : 'var(--text-secondary)',
-    'font-weight': '600',
-    'font-size': '14px',
-  });
 
   return (
     <MainLayout>
@@ -147,7 +129,7 @@ export const CartPage: Component = () => {
               <div style={{ color: 'var(--app-white)', 'font-size': '14px', display: 'grid', gap: '4px' }}>
                 <span>N.º de pedido: <strong>{order().id}</strong></span>
                 <span>Entrega en: {order().deliveryAddress}</span>
-                <span>Pago: {order().paymentMethod === 'CARD' ? 'Tarjeta' : 'Efectivo contra entrega'}</span>
+                <span>Pago: Efectivo contra entrega (al recibir el pedido)</span>
                 <span>
                   Subtotal: {formatMoney(order().subtotal)} · IVA 13%: {formatMoney(order().taxAmount)} ·{' '}
                   <strong>Total: {formatMoney(order().total)}</strong>
@@ -332,14 +314,28 @@ export const CartPage: Component = () => {
                 icon={<MapPin size={16} />}
                 maxLength={255}
               />
+              {/* Método de pago único: efectivo contra entrega (pasarelas de tarjeta excluidas) */}
               <div>
                 <span style={{ 'font-size': '13px', 'font-weight': '600', color: 'var(--app-gray-300)' }}>Método de pago</span>
-                <div style={{ display: 'flex', gap: '12px', 'margin-top': '6px' }}>
-                  <div style={paymentOptionStyle('CASH')} onClick={() => setPaymentMethod('CASH')}>
-                    <Banknote size={18} /> Efectivo
-                  </div>
-                  <div style={paymentOptionStyle('CARD')} onClick={() => setPaymentMethod('CARD')}>
-                    <CreditCard size={18} /> Tarjeta
+                <div
+                  style={{
+                    display: 'flex',
+                    'align-items': 'center',
+                    gap: '12px',
+                    'margin-top': '6px',
+                    padding: '12px 14px',
+                    'border-radius': 'var(--radius-md)',
+                    border: '1px solid var(--app-green)',
+                    'background-color': 'var(--app-green-light)',
+                    color: 'var(--app-green)',
+                  }}
+                >
+                  <Banknote size={20} />
+                  <div style={{ flex: '1' }}>
+                    <div style={{ 'font-weight': '700', 'font-size': '14px' }}>Efectivo contra entrega</div>
+                    <div style={{ 'font-size': '12px', color: 'var(--text-secondary)' }}>
+                      Pagas al repartidor cuando recibes tu pedido. Pagos con tarjeta no disponibles.
+                    </div>
                   </div>
                 </div>
               </div>
