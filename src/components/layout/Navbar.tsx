@@ -10,7 +10,6 @@ export const Navbar: Component = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    cartStore.clear();
     authStore.logout();
     navigate('/login');
   };
