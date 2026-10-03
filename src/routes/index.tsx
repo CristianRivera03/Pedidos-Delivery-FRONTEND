@@ -1,5 +1,6 @@
 import { Component, JSX, Show } from 'solid-js';
 import { Router, Route, Navigate } from '@solidjs/router';
+
 import { Login } from '@pages/Login';
 import { Register } from '@pages/Register';
 import { Dashboard } from '@pages/Dashboard';
@@ -8,12 +9,18 @@ import { Catalog } from '@pages/Catalog';
 import { CategoriesPage } from '@pages/Categories';
 import { ProductsAdminPage } from '@pages/ProductsAdmin';
 import { NotFound } from '@pages/NotFound';
-import { authStore } from '@state/auth.store';
 import { CartPage } from '@pages/Cart';
+import { OrdersPage } from '@pages/Orders';
+
+import { authStore } from '@state/auth.store';
+
 // Componente Guardia de Rutas Protegidas
 const ProtectedRoute: Component<{ children: JSX.Element }> = (props) => {
   return (
-    <Show when={authStore.isAuthenticated()} fallback={<Navigate href="/login" />}>
+    <Show
+      when={authStore.isAuthenticated()}
+      fallback={<Navigate href="/login" />}
+    >
       {props.children}
     </Show>
   );
@@ -22,9 +29,21 @@ const ProtectedRoute: Component<{ children: JSX.Element }> = (props) => {
 export const AppRoutes: Component = () => {
   return (
     <Router>
-      <Route path="/" component={() => <Navigate href="/dashboard" />} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
+      <Route
+        path="/"
+        component={() => <Navigate href="/dashboard" />}
+      />
+
+      <Route
+        path="/login"
+        component={Login}
+      />
+
+      <Route
+        path="/register"
+        component={Register}
+      />
+
       <Route
         path="/dashboard"
         component={() => (
@@ -33,6 +52,7 @@ export const AppRoutes: Component = () => {
           </ProtectedRoute>
         )}
       />
+
       <Route
         path="/catalog"
         component={() => (
@@ -41,6 +61,7 @@ export const AppRoutes: Component = () => {
           </ProtectedRoute>
         )}
       />
+
       <Route
         path="/cart"
         component={() => (
@@ -49,6 +70,16 @@ export const AppRoutes: Component = () => {
           </ProtectedRoute>
         )}
       />
+
+      <Route
+        path="/orders"
+        component={() => (
+          <ProtectedRoute>
+            <OrdersPage />
+          </ProtectedRoute>
+        )}
+      />
+
       <Route
         path="/categories"
         component={() => (
@@ -57,6 +88,7 @@ export const AppRoutes: Component = () => {
           </ProtectedRoute>
         )}
       />
+
       <Route
         path="/products-admin"
         component={() => (
@@ -65,6 +97,7 @@ export const AppRoutes: Component = () => {
           </ProtectedRoute>
         )}
       />
+
       <Route
         path="/users"
         component={() => (
@@ -73,7 +106,11 @@ export const AppRoutes: Component = () => {
           </ProtectedRoute>
         )}
       />
-      <Route path="*param" component={NotFound} />
+
+      <Route
+        path="*param"
+        component={NotFound}
+      />
     </Router>
   );
 };
