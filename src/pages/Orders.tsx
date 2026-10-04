@@ -1,4 +1,11 @@
-import { Component, For, Show, createSignal, onMount } from 'solid-js';
+import {
+  Component,
+  For,
+  Show,
+  createSignal,
+  onMount,
+  onCleanup,
+} from 'solid-js';
 import { MainLayout } from '@components/layout/MainLayout';
 import { authStore } from '@state/auth.store';
 import { orderService } from '@infrastructure/services';
@@ -212,7 +219,28 @@ export const OrdersPage: Component = () => {
     );
   };
 
-  onMount(loadOrders);
+  onMount(() => {
+  loadOrders();
+
+  const role = authStore.userRole();
+
+  const isMonitoringRole =
+    role === 'ADMIN' ||
+    role === 'DELIVERY' ||
+    role === 'RESTAURANT';
+
+  if (!isMonitoringRole) {
+    return;
+  }
+
+  const interval = window.setInterval(() => {
+    loadOrders();
+  }, 15000);
+
+  onCleanup(() => {
+    window.clearInterval(interval);
+  });
+});
 
   return (
     <MainLayout>
